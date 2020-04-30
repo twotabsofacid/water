@@ -1,6 +1,6 @@
 # Water
 
-> let urself sink
+> let yourself sink
 
 Water made with shaders.
 
