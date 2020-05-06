@@ -36,12 +36,14 @@ const main = async () => {
 		colorOne: [0, 40, 128 ],
 		colorTwo: [20, 20, 80],
 		colorThree: [10, 30, 15],
-		colorFour: [55, 30, 15]
+		colorFour: [55, 30, 15],
+		colorSun: [255, 120, 80]
 	};
 	gui.add(options, 'numColors').min(1).max(3).step(1);
 	gui.addColor(palette, 'colorOne');
 	gui.addColor(palette, 'colorTwo');
 	gui.addColor(palette, 'colorThree');
+	gui.addColor(palette, 'colorSun');
 	// gui.addColor(palette, 'colorFour');
 
 	//////////////////////////////////////////////
@@ -115,6 +117,7 @@ const main = async () => {
 	const u_colorTwo_location = gl.getUniformLocation(shader_program, "u_colorTwo");
 	const u_colorThree_location = gl.getUniformLocation(shader_program, "u_colorThree");
 	const u_colorFour_location = gl.getUniformLocation(shader_program, "u_colorFour");
+	const u_colorSun_location = gl.getUniformLocation(shader_program, "u_colorSun");
 
 	//////////////////////////////////////////////
 	// buffer the vertex data
@@ -177,6 +180,7 @@ const main = async () => {
 		gl.uniform3fv(u_colorTwo_location, palette.colorTwo.map(item => item/255));
 		gl.uniform3fv(u_colorThree_location, palette.colorThree.map(item => item/255));
 		gl.uniform3fv(u_colorFour_location, palette.colorFour.map(item => item/255));
+		gl.uniform3fv(u_colorSun_location, palette.colorSun.map(item => item/255));
 
 		// draw the geometry
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

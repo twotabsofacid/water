@@ -7,6 +7,7 @@ uniform vec3 u_colorOne;
 uniform vec3 u_colorTwo;
 uniform vec3 u_colorThree;
 uniform vec3 u_colorFour;
+uniform vec3 u_colorSun;
 
 varying vec2 v_texcoord;
 
@@ -27,19 +28,13 @@ varying vec2 v_texcoord;
 //               https://github.com/ashima/webgl-noise
 // 
 
-#define box_y 1.0
-#define box_x 2.0
-#define box_z 2.0
 #define bg vec4(0.0, 0.0, 0.0, 1.0)
 #define traceStep 0.5
 #define steps 8
-#define cameraDistance 80.0
-#define noiseMultipler 42.0
-#define red vec4(5.0, 0.0, 0.0, 1.0)
-#define waterColor vec4(0.0, 0.3, 0.5, 1.0)
-#define redHue vec4(2.0, 0.5, 0.5, 1.0)
-#define orangeHue vec4(1.0, 0.4, 0.25, 1.0)
-#define PI_HALF 1.5707963267949
+#define cameraDistance 72.0
+#define noiseMultipler 32.0
+#define waterLowlightColor vec4(0.2, 0.2, 0.2, 1.0)
+#define waterHighlightColor vec4(0.9, 0.9, 0.9, 1.0)
 
 vec3 mod289(vec3 x) {
 	return x - floor(x * (1.0 / 289.0)) * 289.0;
@@ -181,21 +176,21 @@ float getHeight(vec3 p) { // x,z,time
 }
 
 vec4 getSky(vec3 rd) {
-	if (rd.y > 0.3) return vec4(0.5, 0.8, 1.0, 1.0); // bright sky
-	if (rd.y < 0.0) return waterColor; // no reflection from below
+	if (rd.y > 0.3) return waterHighlightColor; // bright sky
+	if (rd.y < 0.0) return waterLowlightColor; // no reflection from below
 
 	// if we've got a wave and 
 	if (rd.z > 0.9 && rd.x > 0.3) {
 		if (rd.y > 0.2) {
-			// red hues
-			return 1.5 * redHue;
+			// tinted sun hues, further away from sun
+			return 1.5 * vec4(u_colorSun.r * 2.0, u_colorSun.g * 1.25, u_colorSun.b * 1.25, 1.0);
 		}
-		// orange hues
-		return 1.5 * orangeHue;
+		// sun hues, closer to sun
+		return 1.5 * vec4(u_colorSun, 1.0);
 	} else {
 		// return the water but brighter,
 		// because we're closer to the sun location
-		return lighten(waterColor, 1.05);
+		return lighten(waterLowlightColor, 1.05);
 	}
 }
 
@@ -242,6 +237,10 @@ vec4 shade(vec3 normal, vec3 pos, vec3 rd) {
 		float stop1 = 0.61;
 		float start2 = 0.78;
 		float stop2 = 0.85;
+		// rd.z = 0.55
+		// (rd.z - start1)/(stop1 - start1)
+		// (0.55 - 0.44)/(0.61 - 0.44)
+		// (0.11)/(0.23)
 		if (rd.z < start1) { // the first water color
 			col += deep * 0.4 * tint1;
 		} else if (rd.z < stop1) { // the first water mix
