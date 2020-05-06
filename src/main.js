@@ -29,12 +29,20 @@ const main = async () => {
 	gui = new dat.GUI();
 	guiIsShowing = true;
 
-	var palette = {
-		colorNear: [0, 40, 128 ],
-		colorFar: [20, 20, 80]
+	const options = {
+		numColors: 2
 	};
-	gui.addColor(palette, 'colorNear');
-	gui.addColor(palette, 'colorFar');
+	const palette = {
+		colorOne: [0, 40, 128 ],
+		colorTwo: [20, 20, 80],
+		colorThree: [10, 30, 15],
+		colorFour: [55, 30, 15]
+	};
+	gui.add(options, 'numColors').min(1).max(3).step(1);
+	gui.addColor(palette, 'colorOne');
+	gui.addColor(palette, 'colorTwo');
+	gui.addColor(palette, 'colorThree');
+	// gui.addColor(palette, 'colorFour');
 
 	//////////////////////////////////////////////
 	// get the canvas
@@ -101,9 +109,12 @@ const main = async () => {
 	const vertex_position_location = gl.getAttribLocation(shader_program, 'aVertexPosition');
 	const vertex_uv_location = gl.getAttribLocation(shader_program, 'aVertexUV');
 	const u_time_location = gl.getUniformLocation(shader_program, "u_time");
+	const u_numColors_location = gl.getUniformLocation(shader_program, "u_numColors");
 	const u_resolution_location = gl.getUniformLocation(shader_program, "u_resolution");
-	const u_colorNear_location = gl.getUniformLocation(shader_program, "u_colorNear");
-	const u_colorFar_location = gl.getUniformLocation(shader_program, "u_colorFar");
+	const u_colorOne_location = gl.getUniformLocation(shader_program, "u_colorOne");
+	const u_colorTwo_location = gl.getUniformLocation(shader_program, "u_colorTwo");
+	const u_colorThree_location = gl.getUniformLocation(shader_program, "u_colorThree");
+	const u_colorFour_location = gl.getUniformLocation(shader_program, "u_colorFour");
 
 	//////////////////////////////////////////////
 	// buffer the vertex data
@@ -161,8 +172,11 @@ const main = async () => {
 		// update uniforms
 		gl.uniform2fv(u_resolution_location, [canvas.width, canvas.height]);
 		gl.uniform1f(u_time_location, (Date.now() - start_time) * .001);
-		gl.uniform3fv(u_colorNear_location, palette.colorNear.map(item => item/255));
-		gl.uniform3fv(u_colorFar_location, palette.colorFar.map(item => item/255));
+		gl.uniform1i(u_numColors_location, options.numColors);
+		gl.uniform3fv(u_colorOne_location, palette.colorOne.map(item => item/255));
+		gl.uniform3fv(u_colorTwo_location, palette.colorTwo.map(item => item/255));
+		gl.uniform3fv(u_colorThree_location, palette.colorThree.map(item => item/255));
+		gl.uniform3fv(u_colorFour_location, palette.colorFour.map(item => item/255));
 
 		// draw the geometry
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

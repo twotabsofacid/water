@@ -2,8 +2,11 @@ precision highp float;
 
 uniform vec2 u_resolution;
 uniform float u_time;
-uniform vec3 u_colorNear;
-uniform vec3 u_colorFar;
+uniform int u_numColors;
+uniform vec3 u_colorOne;
+uniform vec3 u_colorTwo;
+uniform vec3 u_colorThree;
+uniform vec3 u_colorFour;
 
 varying vec2 v_texcoord;
 
@@ -210,22 +213,78 @@ vec4 shade(vec3 normal, vec3 pos, vec3 rd) {
 	float deep = 1.0 + 0.5 * pos.y;
 
 	vec4 col = fresnel * reflection;
-	
-	// mix some colors :)
-	// we can use rd bc that splits the screen up well
-	vec4 tint1 = vec4(u_colorNear.r, u_colorNear.g, u_colorNear.b, 1.0);
-	vec4 tint2 = vec4(u_colorFar.r, u_colorFar.g, u_colorFar.b, 1.0);
-	vec4 waterColorMix = mix(tint1, tint2, rd.z);
-	// This splits up the water into sections
-	float start = 0.61;
-	float stop = 0.78;
-	if (rd.z < start) {
-		col += deep * 0.4 * tint1;
-	} else if (rd.z < stop) {
-		col += deep * 0.4 * mix(tint1, tint2, (rd.z - start)/(stop - start));
+
+	if (u_numColors == 1) {
+		col += deep * 0.4 * vec4(u_colorOne, 1.0);
+	} else if (u_numColors == 2) {
+		// mix some colors :)
+		// we can use rd bc that splits the screen up well
+		vec4 tint1 = vec4(u_colorOne.r, u_colorOne.g, u_colorOne.b, 1.0);
+		vec4 tint2 = vec4(u_colorTwo.r, u_colorTwo.g, u_colorTwo.b, 1.0);
+		// This splits up the water into sections
+		float start = 0.61;
+		float stop = 0.78;
+		if (rd.z < start) { // first water color
+			col += deep * 0.4 * tint1;
+		} else if (rd.z < stop) { // the mixture
+			col += deep * 0.4 * mix(tint1, tint2, (rd.z - start)/(stop - start));
+		} else { // second water color
+			col += deep * 0.4 * tint2;
+		}
 	} else {
-		col += deep * 0.4 * tint2;
+		// mix some colors :)
+		// we can use rd bc that splits the screen up well
+		vec4 tint1 = vec4(u_colorOne, 1.0);
+		vec4 tint2 = vec4(u_colorTwo, 1.0);
+		vec4 tint3 = vec4(u_colorThree, 1.0);
+		// This splits up the water into sections
+		float start1 = 0.44;
+		float stop1 = 0.61;
+		float start2 = 0.78;
+		float stop2 = 0.85;
+		if (rd.z < start1) { // the first water color
+			col += deep * 0.4 * tint1;
+		} else if (rd.z < stop1) { // the first water mix
+			col += deep * 0.4 * mix(tint1, tint2, (rd.z - start1)/(stop1 - start1));
+		} else if (rd.z < start2) {
+			col += deep * 0.4 * tint2;
+		} else if (rd.z < stop2) {
+			col += deep * 0.4 * mix(tint2, tint3, (rd.z - start2)/(stop2 - start2));
+		} else {
+			col += deep * 0.4 * tint3;
+		}
 	}
+	// when we had four colors
+	// else {
+	// 	// mix some colors :)
+	// 	// we can use rd bc that splits the screen up well
+	// 	vec4 tint1 = vec4(u_colorOne, 1.0);
+	// 	vec4 tint2 = vec4(u_colorTwo, 1.0);
+	// 	vec4 tint3 = vec4(u_colorThree, 1.0);
+	// 	vec4 tint4 = vec4(u_colorFour, 1.0);
+	// 	// This splits up the water into sections
+	// 	float start1 = 0.34;
+	// 	float stop1 = 0.51;
+	// 	float start2 = 0.68;
+	// 	float stop2 = 0.85;
+	// 	float start3 = 0.855;
+	// 	float stop3 = 0.9;
+	// 	if (rd.z < start1) { // the first water color
+	// 		col += deep * 0.4 * tint1;
+	// 	} else if (rd.z < stop1) { // the first water mix
+	// 		col += deep * 0.4 * mix(tint1, tint2, (rd.z - start1)/(stop1 - start1));
+	// 	} else if (rd.z < start2) {
+	// 		col += deep * 0.4 * tint2;
+	// 	} else if (rd.z < stop2) {
+	// 		col += deep * 0.4 * mix(tint2, tint3, (rd.z - start2)/(stop2 - start2));
+	// 	} else if (rd.z < start3) {
+	// 		col += deep * 0.4 * tint3;
+	// 	} else if (rd.z < stop3) {
+	// 		col += deep * 0.4 * mix(tint3, tint4, (rd.z - start3)/(stop3 - start3));
+	// 	} else {
+	// 		col += deep * 0.4 * tint4;
+	// 	}
+	// }
 
 	return clamp(col, 0.0, 1.0);
 }
