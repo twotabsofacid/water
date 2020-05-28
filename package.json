@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "start": "NODE_ENV=production webpack",
+    "build": "rm -rf out && NODE_ENV=production webpack && mkdir -p out && cp dist/main.js out && cp index.html out/ && cp frag.glsl out/ && cp vert.glsl out/",
     "dev": "NODE_ENV=development webpack-dev-server"
   },
   "dependencies": {

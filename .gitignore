@@ -85,3 +85,5 @@ typings/
 
 # Project specific
 dist/
+out/
+.env
